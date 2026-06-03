@@ -1,0 +1,42 @@
+name: Package and Release Map
+
+on:
+  push:
+    tags:
+      - 'v*' 
+  workflow_dispatch: 
+
+permissions:
+  contents: write
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create Zip Archive
+        run: |
+          zip -r clutch_practice_map.zip . -x "*.git*" "*.github*" "README.md" ".gitignore" "changelog.md"
+
+      - name: Create GitHub Release and Upload Asset
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TAG_NAME="manual-build-$(date +'%Y%m%d%H%M')"
+          else
+            TAG_NAME="${{ github.ref_name }}"
+          fi
+
+          if [ -f "changelog.txt" ]; then
+            echo "Found changelog.txt, using it for release notes."
+            NOTES_ARG="--notes-file changelog.txt"
+          else
+            echo "changelog.txt not found, falling back to auto-generated notes."
+            NOTES_ARG="--generate-notes"
+          fi
+          
+          gh release create "$TAG_NAME" clutch_practice_map.zip \
+            --title "Clutch Map $TAG_NAME" \
+            $NOTES_ARG

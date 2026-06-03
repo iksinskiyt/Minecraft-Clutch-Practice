@@ -30,10 +30,10 @@ jobs:
           fi
 
           if [ -f "changelog.md" ]; then
-            echo "Found changelog.txt, using it for release notes."
-            NOTES_ARG="--notes-file changelog.txt"
+            echo "Found changelog.md, using it for release notes."
+            NOTES_ARG="--notes-file changelog.md"
           else
-            echo "changelog.txt not found, falling back to auto-generated notes."
+            echo "changelog.md not found, falling back to auto-generated notes."
             NOTES_ARG="--generate-notes"
           fi
           
